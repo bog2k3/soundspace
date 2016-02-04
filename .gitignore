@@ -1,0 +1,7 @@
+.metadata
+RemoteSystemsTempFiles
+*.o
+*.d
+*.a
+*/Debug/soundSpace
+
