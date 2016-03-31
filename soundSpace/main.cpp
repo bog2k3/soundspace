@@ -8,6 +8,8 @@
 #include "../wavegen/WavegenClient.h"
 #include <iostream>
 
+using namespace wavegen;
+
 int main() {
 	WavegenClient wc("test");
 	wc.connectAsync("localhost", [](OperationResult res) {
