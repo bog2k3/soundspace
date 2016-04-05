@@ -10,7 +10,9 @@
 #include <pulse/thread-mainloop.h>
 #include <pulse/context.h>
 #include <pulse/def.h>
+#include <pulse/error.h>
 
+#include <iostream>
 #include <cassert>
 #include <condition_variable>
 #include <mutex>
@@ -57,6 +59,11 @@ bool WavegenClient::connect(std::string const& serverAddr) {
 	return wasSuccessful;
 }
 
+void reportContextError(pa_context *pContext, std::string const& server) {
+	std::cerr << "[WavegenClient] Connection to PA server \"" << server << "\" failed.\n\tReason: ";
+	std::cerr << pa_strerror(pa_context_errno(pContext)) << "\n";
+}
+
 void WavegenClient::connectAsync(std::string const& serverAddr, AsyncOperationCb &&cb) {
 	{
 		std::lock_guard<std::mutex> lock(mapOperationCallbacksMutex_);
@@ -64,8 +71,9 @@ void WavegenClient::connectAsync(std::string const& serverAddr, AsyncOperationCb
 			mapOperationCallbacks_[OperationType::Connect].emplace_back(std::move(cb));
 	}
 
-	if (pa_context_connect(paContext_, serverAddr.c_str(), PA_CONTEXT_NOFLAGS, nullptr) < 0) {
+	if (pa_context_connect(paContext_, serverAddr.empty() ? nullptr : serverAddr.c_str(), PA_CONTEXT_NOFLAGS, nullptr) < 0) {
 		// connection failed
+		reportContextError(paContext_, serverAddr);
 		notifyResult(OperationType::Connect, OperationResult::Failed, true);
 	}
 }
@@ -92,6 +100,9 @@ void WavegenClient::notifyResult(OperationType type, OperationResult result, boo
 void WavegenClient::onContextStateChanged() {
 	switch (pa_context_get_state(paContext_)) {
 	case PA_CONTEXT_FAILED:
+		reportContextError(paContext_, pa_context_get_server(paContext_));
+		notifyResult(OperationType::Connect, OperationResult::Failed, true);
+		break;
 	case PA_CONTEXT_TERMINATED:
 		notifyResult(OperationType::Connect, OperationResult::Failed, true);
 		break;
