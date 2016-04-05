@@ -40,17 +40,21 @@ bool WavegenClient::connect(std::string const& serverAddr) {
 	std::mutex mtx;
 	std::unique_lock<std::mutex> lk(mtx);
 	volatile bool connectionSettled = false;
+	volatile bool wasSuccessful = false;
 
-	connectAsync(serverAddr, [&connectionSettled, &condConnectionSettled, &mtx](OperationResult res) {
+	connectAsync(serverAddr, [&](OperationResult res) {
 		if (res == OperationResult::Failed ||
 			res == OperationResult::Success) {
 			connectionSettled = true;
+			wasSuccessful = res == OperationResult::Success;
 			condConnectionSettled.notify_one();
 		}
 	});
 
 	// wait for the operation to signal completion:
 	condConnectionSettled.wait(lk, [&connectionSettled] {return connectionSettled; });
+
+	return wasSuccessful;
 }
 
 void WavegenClient::connectAsync(std::string const& serverAddr, AsyncOperationCb &&cb) {

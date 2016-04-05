@@ -6,6 +6,9 @@
  */
 
 #include "../wavegen/WavegenClient.h"
+
+#include <unistd.h>
+
 #include <iostream>
 
 using namespace wavegen;
@@ -27,6 +30,7 @@ int main() {
 			std::cout << "Connection to PulseAudio server UNKNOWN state: " << (int)res << "\n";
 		}
 	});
+	sleep(5);
 	return 0;
 }
 
