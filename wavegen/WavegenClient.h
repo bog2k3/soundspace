@@ -21,6 +21,8 @@ struct pa_mainloop_api;
 
 namespace wavegen {
 
+class IGenerator;
+
 class WavegenClient {
 public:
 
@@ -30,6 +32,8 @@ public:
 	bool connect(std::string const& serverAddr);
 
 	void connectAsync(std::string const& serverAddr, AsyncOperationCb &&cb);
+
+	void addGenerator(IGenerator &gen);
 
 private:
 	std::string name_;
@@ -46,6 +50,8 @@ private:
 	void onContextStateChanged();
 
 	static void contextStateCallback(pa_context* ctx, void* userdata);
+
+	std::vector<IGenerator*> generators_;
 };
 
 } // namespace wavegen

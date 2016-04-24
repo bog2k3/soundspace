@@ -6,6 +6,7 @@
  */
 
 #include "../wavegen/WavegenClient.h"
+#include "../wavegen/HarmonicGenerator.h"
 
 #include <unistd.h>
 
@@ -31,6 +32,13 @@ int main() {
 			std::cout << "Connection to PulseAudio server UNKNOWN state: " << (int)res << "\n";
 		}
 	});
+
+	HarmonicGenerator gen;
+	gen.configureHarmonics({800, 1.f, 0.3f, 0.6f, 0.1f, 0.4f});
+	gen.setVolume(0.3f);
+
+	wc.addGenerator(gen);
+
 	sleep(5);
 	return 0;
 }

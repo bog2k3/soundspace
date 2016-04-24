@@ -15,11 +15,15 @@ namespace wavegen {
 
 class IGenerator {
 public:
-	IGenerator(unsigned sampleFreq, unsigned sampleBitCount); // TODO change from unsigned to enum
-	virtual ~IGenerator() {
-	}
+	IGenerator() = default;
+	virtual ~IGenerator() = default;
 
-	virtual void generate16bitSamples(unsigned long startTime_us, unsigned long length_us, int16_t out[]); // find a better buffer solution, maybe std::array
+	// skip an interval of time (fast-forward)
+	virtual void skipInterval(unsigned long length_us) = 0;
+
+	// generate samples for the next length_us interval of time (in microseconds)
+	// sampleRate is given in samples per second
+	virtual void generate16bitSamples(unsigned long length_us, unsigned sampleRate, int16_t out[]) = 0; // find a better buffer solution, maybe std::array
 private:
 };
 

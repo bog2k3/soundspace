@@ -4,12 +4,15 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../HarmonicGenerator.cpp \
 ../WavegenClient.cpp 
 
 OBJS += \
+./HarmonicGenerator.o \
 ./WavegenClient.o 
 
 CPP_DEPS += \
+./HarmonicGenerator.d \
 ./WavegenClient.d 
 
 

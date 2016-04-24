@@ -6,6 +6,8 @@
  */
 
 #include "WavegenClient.h"
+#include "IGenerator.h"
+
 #include <pulse/mainloop-api.h>
 #include <pulse/thread-mainloop.h>
 #include <pulse/context.h>
@@ -121,6 +123,10 @@ void WavegenClient::contextStateCallback(pa_context*, void* userdata) {
 	assert(userdata);
 	WavegenClient* wg = (WavegenClient*)userdata;
 	wg->onContextStateChanged();
+}
+
+void WavegenClient::addGenerator(IGenerator &gen) {
+	generators_.push_back(&gen);
 }
 
 } // namespace wavegen
