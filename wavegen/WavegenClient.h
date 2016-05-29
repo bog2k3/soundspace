@@ -18,6 +18,7 @@
 struct pa_context;
 struct pa_threaded_mainloop;
 struct pa_mainloop_api;
+struct pa_stream;
 
 namespace wavegen {
 
@@ -25,6 +26,8 @@ class IGenerator;
 
 class WavegenClient {
 public:
+
+	static constexpr unsigned SAMPLE_RATE = 44100;
 
 	WavegenClient(std::string const& name);
 	virtual ~WavegenClient();
@@ -40,12 +43,16 @@ private:
 	pa_threaded_mainloop *paMainLoop_ = nullptr;
 	pa_mainloop_api *paMainApi_ = nullptr;
 	pa_context *paContext_ = nullptr;
+	pa_stream *paStream_ = nullptr;
 
 	using MapOperationCallbacks = std::map<OperationType, std::vector<AsyncOperationCb>>;
 	MapOperationCallbacks mapOperationCallbacks_;
 	std::mutex mapOperationCallbacksMutex_;
 
+	bool firstConnection_ = true;
+
 	void notifyResult(OperationType type, OperationResult result, bool clearCallbacks);
+	void onConnectionEstablishedFirstTime();
 
 	void onContextStateChanged();
 

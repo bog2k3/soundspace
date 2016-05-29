@@ -13,6 +13,7 @@
 #include <pulse/context.h>
 #include <pulse/def.h>
 #include <pulse/error.h>
+#include <pulse/stream.h>
 
 #include <iostream>
 #include <cassert>
@@ -99,6 +100,16 @@ void WavegenClient::notifyResult(OperationType type, OperationResult result, boo
 	}
 }
 
+void WavegenClient::onConnectionEstablishedFirstTime() {
+	// create stream:
+	pa_sample_spec ss;
+	ss.channels = 1;
+	ss.format = PA_SAMPLE_S16LE;
+	ss.rate = SAMPLE_RATE;
+	paStream_ = pa_stream_new(paContext_, name_.c_str(), &ss, nullptr);
+	pa_stream_connect_playback(paStream_, nullptr, nullptr, pa_stream_flags::PA_STREAM_NOFLAGS, nullptr, nullptr);
+}
+
 void WavegenClient::onContextStateChanged() {
 	switch (pa_context_get_state(paContext_)) {
 	case PA_CONTEXT_FAILED:
@@ -110,6 +121,10 @@ void WavegenClient::onContextStateChanged() {
 		break;
 	case PA_CONTEXT_READY:
 		// connection OK
+		if (firstConnection_) {
+			onConnectionEstablishedFirstTime();
+			firstConnection_ = false;
+		}
 		notifyResult(OperationType::Connect, OperationResult::Success, true);
 		break;
 	default:

@@ -33,7 +33,7 @@ void HarmonicGenerator::generate16bitSamples(unsigned long length_us, unsigned s
 
 			value += sin(phase) * amplitude * volume_;
 		}
-		out[i] = 0x7FFFF * std::min(1.0, std::max(-1.0, value));
+		out[i] = 0x7FFF * std::min(1.0, std::max(-1.0, value));
 	}
 	crtTime_ += length_us;
 }
